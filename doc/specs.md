@@ -24,7 +24,7 @@ For any implementation:
 * Application have to be split in two parts:
 - UI
 - logic
-* Must be multiplatform
+* Must be multiplatform (not for the first version)
 * Must have a console mode
 
 - C version
