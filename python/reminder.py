@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# Remnder software
+# Reminder software
 #
 #
 
@@ -37,14 +37,13 @@ def Save( parameters ):
 	with open('tasks.pkl', 'wb') as output:
 		pickle.dump(task, output, pickle.HIGHEST_PROTOCOL)
 
-
 def Load( parameters ):
 	global task
 	with open('tasks.pkl', 'rb') as input:
 		task = pickle.load( input)
 
 def Quit( parameters ):
-	print "Quit"
+	print "Bye, bye!"
 
 def Help( parameters ):
 	print "Help"
