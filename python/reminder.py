@@ -42,6 +42,9 @@ def Load( parameters ):
 	with open('tasks.pkl', 'rb') as input:
 		task = pickle.load( input)
 
+def Check( parameters ):
+	print "Check"
+
 def Quit( parameters ):
 	print "Bye, bye!"
 
@@ -52,6 +55,7 @@ def Help( parameters ):
 	print "n: create a new task"
 	print "s: save tasks"
 	print "l: load tasks"
+	print "c: check all tasks"
 	print "q: quit application"
 
 # main
@@ -65,6 +69,7 @@ commands['p']= List
 commands['n']= New
 commands['s']= Save
 commands['l']= Load
+commands['c']= Check
 
 param = [""]
 while (param[0] != "q"):
