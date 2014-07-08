@@ -4,6 +4,8 @@
 #
 
 import sys
+from datetime import timedelta
+import pickle
 
 task = []
 
@@ -12,10 +14,11 @@ def DisplayWelcomeMessage():
 
 def List( parameters ):
 	global task
-	print "List"
-	print "Parameters: [%s]" % ", ".join(map(str, parameters))
-	for x in task:
-		print x
+	if len(task) > 0:
+		for x in task:
+			print x
+	else:
+		print "No tasks"
 
 def New( parameters ):
 	global task
@@ -24,11 +27,21 @@ def New( parameters ):
 	print "Description:",
 	taskDescription = raw_input()
 	print "Interval (days):",
-	taskInterval = raw_input()
+	taskInterval = timedelta(days=int(raw_input()))
 	print "Reminder (days):",
-	taskReminder = raw_input()
+	taskReminder = timedelta(days=int(raw_input()))
 	task.append((taskName, taskDescription, taskInterval, taskReminder))
 
+def Save( parameters ):
+	global task
+	with open('tasks.pkl', 'wb') as output:
+		pickle.dump(task, output, pickle.HIGHEST_PROTOCOL)
+
+
+def Load( parameters ):
+	global task
+	with open('tasks.pkl', 'rb') as input:
+		task = pickle.load( input)
 
 def Quit( parameters ):
 	print "Quit"
@@ -36,8 +49,10 @@ def Quit( parameters ):
 def Help( parameters ):
 	print "Help"
 	print "h: display this help"
-	print "l: list all tasks"
-	print "n: creqte a new task"
+	print "p: list all tasks"
+	print "n: create a new task"
+	print "s: save tasks"
+	print "l: load tasks"
 	print "q: quit application"
 
 # main
@@ -47,8 +62,10 @@ DisplayWelcomeMessage()
 commands = {}
 commands['q']= Quit
 commands['h']= Help
-commands['l']= List
+commands['p']= List
 commands['n']= New
+commands['s']= Save
+commands['l']= Load
 
 param = [""]
 while (param[0] != "q"):
