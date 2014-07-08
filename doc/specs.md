@@ -11,8 +11,12 @@ Features:
 * On task deadline a reminder is displayed (popup window)
 * On validation of the popup, the task is marked as done and a new reminder is restarted
 * Tasks are saved in a file
-* Log of tasks done must be written in a file
+* Log of tasks done must be written in a csv file. It includes:
+ - task identifier
+ - task name
+ - date of the action
 * A task has:
+ - an identifier
  - a name
  - a description
  - an interval
@@ -27,7 +31,7 @@ For any implementation:
 - UI
 - logic
 * Must be multiplatform (not for the first version)
-* Must have a console mode
+* Must have a console mode. The base software will be console app which will be used in background by graphical version
 
 - C version
  
