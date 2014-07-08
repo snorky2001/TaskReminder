@@ -8,13 +8,14 @@ import sys
 def DisplayWelcomeMessage():
 	print "TaskReminder v0.1"
 
-def List():
+def List( parameters ):
 	print "List"
+	print "Parameters: [%s]" % ", ".join(map(str, parameters))
 
-def Quit():
+def Quit( parameters ):
 	print "Quit"
 
-def Help():
+def Help( parameters ):
 	print "Help"
 	print "h: display this help"
 	print "l: list all tasks"
@@ -34,12 +35,14 @@ while (param[0] != "q"):
 	# Get user input
 	print ">>",
 	command = raw_input()
+
 	# Get parameters
 	param = command.split()
+
 	# Call the matching command if it exists or display an error message
 	param[0] = param[0].lower()
 	if param[0] in commands:
-		commands[param[0]]()
+		commands[param[0]]( param )
 	else:
 		print "Command unknown"
 
