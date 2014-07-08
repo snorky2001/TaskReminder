@@ -15,7 +15,9 @@ Features:
 * A task has:
  - a name
  - a description
- - a reminder
+ - an interval
+ - a last action date
+ - a reminder interval
 
 
 Implementations:
