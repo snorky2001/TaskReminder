@@ -9,14 +9,18 @@ import pickle
 
 task = []
 
+def TruncText(text, length):
+	return (text[:length-2] + '..') if len(text)>length else text	
+
 def DisplayWelcomeMessage():
 	print "TaskReminder v0.1"
 
 def List( parameters ):
 	global task
 	if len(task) > 0:
+		print '{0:20}{1:15}{2:20}{3:20}'.format('Name', 'Description', 'Interval', 'Reminder')
 		for x in task:
-			print x
+			print '{0:20}{1:15}{2:20}{3:20}'.format( TruncText(x[0],19), TruncText(x[1],14), x[2], x[3])
 	else:
 		print "No tasks"
 
