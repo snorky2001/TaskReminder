@@ -6,6 +6,7 @@
 import sys
 from datetime import timedelta
 import pickle
+import shlex
 
 task = []
 
@@ -82,7 +83,7 @@ while (param[0] != "q"):
 	command = raw_input()
 
 	# Get parameters
-	param = command.split()
+	param = shlex.split(command)
 
 	# Call the matching command if it exists or display an error message
 	param[0] = param[0].lower()
