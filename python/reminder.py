@@ -8,6 +8,7 @@ from datetime import timedelta
 import pickle
 import shlex
 
+firstAvailableId = 0
 task = []
 
 def TruncText(text, length):
@@ -19,14 +20,15 @@ def DisplayWelcomeMessage():
 def List( parameters ):
 	global task
 	if len(task) > 0:
-		print '{0:20}{1:15}{2:20}{3:20}'.format('Name', 'Description', 'Interval', 'Reminder')
+		print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format('Id', 'Name', 'Description', 'Interval', 'Reminder')
 		for x in task:
-			print '{0:20}{1:15}{2:20}{3:20}'.format( TruncText(x[0],19), TruncText(x[1],14), x[2], x[3])
+			print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format( str(x[0]), TruncText(x[1],19), TruncText(x[2],14), x[3], x[4])
 	else:
 		print "No tasks"
 
 def New( parameters ):
 	global task
+	global firstAvailableId
 	print "Task name:",
 	taskName = raw_input()
 	print "Description:",
@@ -35,16 +37,21 @@ def New( parameters ):
 	taskInterval = timedelta(days=int(raw_input()))
 	print "Reminder (days):",
 	taskReminder = timedelta(days=int(raw_input()))
-	task.append((taskName, taskDescription, taskInterval, taskReminder))
+	task.append((firstAvailableId, taskName, taskDescription, taskInterval, taskReminder))
+	firstAvailableId = firstAvailableId + 1
 
 def Save( parameters ):
 	global task
+	global firstAvailableId
 	with open('tasks.pkl', 'wb') as output:
+		pickle.dump(firstAvailableId, output, pickle.HIGHEST_PROTOCOL)
 		pickle.dump(task, output, pickle.HIGHEST_PROTOCOL)
 
 def Load( parameters ):
 	global task
+	global firstAvailableId
 	with open('tasks.pkl', 'rb') as input:
+		firstAvailableId = pickle.load( input)
 		task = pickle.load( input)
 
 def Check( parameters ):
@@ -58,6 +65,8 @@ def Help( parameters ):
 	print "h: display this help"
 	print "p: list all tasks"
 	print "n: create a new task"
+	print "d: delete a task"
+	print "e: edit a task"
 	print "s: save tasks"
 	print "l: load tasks"
 	print "c: check all tasks"
@@ -70,6 +79,7 @@ DisplayWelcomeMessage()
 commands = {}
 commands['q']= Quit
 commands['h']= Help
+commands['help']= Help
 commands['p']= List
 commands['n']= New
 commands['s']= Save
