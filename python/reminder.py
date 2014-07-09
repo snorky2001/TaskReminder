@@ -29,14 +29,31 @@ def List( parameters ):
 def New( parameters ):
 	global task
 	global firstAvailableId
-	print "Task name:",
-	taskName = raw_input()
-	print "Description:",
-	taskDescription = raw_input()
-	print "Interval (days):",
-	taskInterval = timedelta(days=int(raw_input()))
-	print "Reminder (days):",
-	taskReminder = timedelta(days=int(raw_input()))
+
+	if len(parameters)<2:
+		print "Task name:",
+		taskName = raw_input()
+	else:
+		taskName = parameters[1]
+
+	if len(parameters)<3:
+		print "Description:",
+		taskDescription = raw_input()
+	else:
+		taskDescription = parameters[2]
+
+	if len(parameters)<4:
+		print "Interval (days):",
+		taskInterval = timedelta(days=int(raw_input()))
+	else:
+		taskInterval = timedelta(days=int(parameters[3]))
+
+	if len(parameters)<5:
+		print "Reminder (days):",
+		taskReminder = timedelta(days=int(raw_input()))
+	else:
+		taskReminder = timedelta(days=int(parameters[4]))
+
 	task.append((firstAvailableId, taskName, taskDescription, taskInterval, taskReminder))
 	firstAvailableId = firstAvailableId + 1
 
@@ -57,6 +74,15 @@ def Load( parameters ):
 def Check( parameters ):
 	print "Check"
 
+def Delete( parameters ):
+	print "Delete"
+
+def Edit( parameters ):
+	print "Edit"
+
+def Done( parameters ):
+	print "Done"
+
 def Quit( parameters ):
 	print "Bye, bye!"
 
@@ -64,12 +90,13 @@ def Help( parameters ):
 	print "Help"
 	print "h: display this help"
 	print "p: list all tasks"
-	print "n: create a new task"
-	print "d: delete a task"
-	print "e: edit a task"
+	print "n <Name> <Description> <Interval> <Reminder>: create a new task"
+	print "d <Id>: delete a task"
+	print "e <Id>: edit a task"
 	print "s: save tasks"
 	print "l: load tasks"
 	print "c: check all tasks"
+	print "d <CheckId>: mark a task as done"
 	print "q: quit application"
 
 # main
@@ -83,8 +110,11 @@ commands['help']= Help
 commands['p']= List
 commands['n']= New
 commands['s']= Save
+commands['d']= Delete
+commands['e']= Edit
 commands['l']= Load
 commands['c']= Check
+commands['d']= Done
 
 param = [""]
 while (param[0] != "q"):
