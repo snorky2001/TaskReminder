@@ -84,10 +84,17 @@ def Delete( parameters ):
 	global task
 	if len(parameters)<2:
 		print "Task to delete:",
-		taskId = raw_input()
+		taskId = int(raw_input())
 	else:
-		taskId = parameters[1]
-	print "Delete task {0}".format(taskId)
+		taskId = int(parameters[1])
+	if taskId in task.keys():
+		print "Delete task {0} <y/N>?".format(taskId),
+		rep = raw_input().lower()
+		if rep == "y":
+			del task[taskId]
+			print "Task deleted"
+	else:
+		print "Wrong Id"
 
 def Edit( parameters ):
 	print "Edit"
