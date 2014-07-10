@@ -60,14 +60,20 @@ def New( parameters ):
 def Save( parameters ):
 	global task
 	global firstAvailableId
-	with open('tasks.pkl', 'wb') as output:
+	fileName = 'tasks.pkl'
+	if len(parameters)==2:
+		fileName = parameters[1]
+	with open(fileName, 'wb') as output:
 		pickle.dump(firstAvailableId, output, pickle.HIGHEST_PROTOCOL)
 		pickle.dump(task, output, pickle.HIGHEST_PROTOCOL)
 
 def Load( parameters ):
 	global task
 	global firstAvailableId
-	with open('tasks.pkl', 'rb') as input:
+	fileName = 'tasks.pkl'
+	if len(parameters)==2:
+		fileName = parameters[1]
+	with open(fileName, 'rb') as input:
 		firstAvailableId = pickle.load( input)
 		task = pickle.load( input)
 
@@ -93,8 +99,8 @@ def Help( parameters ):
 	print "n <Name> <Description> <Interval> <Reminder>: create a new task"
 	print "d <Id>: delete a task"
 	print "e <Id>: edit a task"
-	print "s: save tasks"
-	print "l: load tasks"
+	print "s <file>: save tasks into a file"
+	print "l <file>: load tasks from a file"
 	print "c: check all tasks"
 	print "d <CheckId>: mark a task as done"
 	print "q: quit application"
