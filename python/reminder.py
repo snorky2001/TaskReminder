@@ -9,7 +9,7 @@ import pickle
 import shlex
 
 firstAvailableId = 0
-task = []
+task = {}
 
 def TruncText(text, length):
 	return (text[:length-2] + '..') if len(text)>length else text	
@@ -21,8 +21,8 @@ def List( parameters ):
 	global task
 	if len(task) > 0:
 		print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format('Id', 'Name', 'Description', 'Interval', 'Reminder')
-		for x in task:
-			print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format( str(x[0]), TruncText(x[1],19), TruncText(x[2],14), x[3], x[4])
+		for k,v in task.iteritems():
+			print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format( str(k), TruncText(v[0],19), TruncText(v[1],14), v[2], v[3])
 	else:
 		print "No tasks"
 
@@ -54,7 +54,7 @@ def New( parameters ):
 	else:
 		taskReminder = timedelta(days=int(parameters[4]))
 
-	task.append((firstAvailableId, taskName, taskDescription, taskInterval, taskReminder))
+	task[firstAvailableId] = (taskName, taskDescription, taskInterval, taskReminder)
 	firstAvailableId = firstAvailableId + 1
 
 def Save( parameters ):
