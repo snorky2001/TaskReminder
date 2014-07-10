@@ -81,13 +81,19 @@ def Check( parameters ):
 	print "Check"
 
 def Delete( parameters ):
-	print "Delete"
+	global task
+	if len(parameters)<2:
+		print "Task to delete:",
+		taskId = raw_input()
+	else:
+		taskId = parameters[1]
+	print "Delete task {0}".format(taskId)
 
 def Edit( parameters ):
 	print "Edit"
 
-def Done( parameters ):
-	print "Done"
+def Validate( parameters ):
+	print "Validate"
 
 def Quit( parameters ):
 	print "Bye, bye!"
@@ -102,7 +108,7 @@ def Help( parameters ):
 	print "s <file>: save tasks into a file"
 	print "l <file>: load tasks from a file"
 	print "c: check all tasks"
-	print "d <CheckId>: mark a task as done"
+	print "v <CheckId>: mark a task as validate"
 	print "q: quit application"
 
 # main
@@ -120,7 +126,7 @@ commands['d']= Delete
 commands['e']= Edit
 commands['l']= Load
 commands['c']= Check
-commands['d']= Done
+commands['v']= Validate
 
 param = [""]
 while (param[0] != "q"):
