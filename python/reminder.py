@@ -9,6 +9,7 @@ from datetime import datetime
 import pickle
 import shlex
 
+version = 1.0
 firstAvailableId = 0
 tasks = {}
 
@@ -73,20 +74,24 @@ def New( parameters ):
 def Save( parameters ):
 	global tasks
 	global firstAvailableId
+	global version
 	fileName = 'tasks.pkl'
 	if len(parameters)==2:
 		fileName = parameters[1]
 	with open(fileName, 'wb') as output:
+		pickle.dump(version, output, pickle.HIGHEST_PROTOCOL)
 		pickle.dump(firstAvailableId, output, pickle.HIGHEST_PROTOCOL)
 		pickle.dump(tasks, output, pickle.HIGHEST_PROTOCOL)
 
 def Load( parameters ):
 	global tasks
 	global firstAvailableId
+	global version
 	fileName = 'tasks.pkl'
 	if len(parameters)==2:
 		fileName = parameters[1]
 	with open(fileName, 'rb') as input:
+		version = pickle.load( input)
 		firstAvailableId = pickle.load( input)
 		tasks = pickle.load( input)
 
@@ -148,8 +153,12 @@ def Validate( parameters ):
 		taskId = int(raw_input())
 	else:
 		taskId = int(parameters[1])
+	if len(parameters)<3:
+		validationTime = datetime.now()
+	else:
+		validationTime = datetime.strptime(parameters[2], "%X")
 	if taskId in tasks.keys():
-		tasks[taskId] = (tasks[taskId][0], tasks[taskId][1], tasks[taskId][2], tasks[taskId][3], datetime.now())
+		tasks[taskId] = (tasks[taskId][0], tasks[taskId][1], tasks[taskId][2], tasks[taskId][3], validationTime)
 		print "task validated"
 	else:
 		print "Wrong Id"
@@ -191,15 +200,15 @@ param = [""]
 while (param[0] != "q"):
 	# Get user input
 	print ">>",
-	command = raw_input()
+	userCommand = raw_input()
 
 	# Get parameters
-	param = shlex.split(command)
+	param = shlex.split(userCommand)
 
-	# Call the matching command if it exists or display an error message
-	param[0] = param[0].lower()
-	if param[0] in commands:
-		commands[param[0]]( param )
+	# Call the matching command (case insensitive) if it exists or display an error message
+	cmd = param[0].lower()
+	if cmd in commands:
+		commands[cmd]( param )
 	else:
 		print "Command unknown"
 
