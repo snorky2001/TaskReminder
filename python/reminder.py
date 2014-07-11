@@ -9,7 +9,7 @@ import pickle
 import shlex
 
 firstAvailableId = 0
-task = {}
+tasks = {}
 
 def TruncText(text, length):
 	return (text[:length-2] + '..') if len(text)>length else text	
@@ -18,27 +18,27 @@ def DisplayWelcomeMessage():
 	print "TaskReminder v0.1"
 
 def Print( parameters ):
-	global task
+	global tasks
 	if len(parameters)>1:
 		taskId = int(parameters[1])
-		if taskId in task.keys():
+		if taskId in tasks.keys():
 			print "Id: {0}".format(taskId)
-			print "Name: {0}".format(task[taskId][0])
-			print "Description: {0}".format(task[taskId][1])
-			print "Interval: {0}".format(task[taskId][2])
-			print "Reminder: {0}".format(task[taskId][3])
+			print "Name: {0}".format(tasks[taskId][0])
+			print "Description: {0}".format(tasks[taskId][1])
+			print "Interval: {0}".format(tasks[taskId][2])
+			print "Reminder: {0}".format(tasks[taskId][3])
 		else:
 			print "Wrong Id"
 	else:
-		if len(task) > 0:
+		if len(tasks) > 0:
 			print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format('Id', 'Name', 'Description', 'Interval', 'Reminder')
-			for k,v in task.iteritems():
+			for k,v in tasks.iteritems():
 				print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format( str(k), TruncText(v[0],19), TruncText(v[1],14), v[2], v[3])
 		else:
-			print "No tasks"
+			print "No task"
 
 def New( parameters ):
-	global task
+	global tasks
 	global firstAvailableId
 
 	if len(parameters)<2:
@@ -65,45 +65,45 @@ def New( parameters ):
 	else:
 		taskReminder = timedelta(days=int(parameters[4]))
 
-	task[firstAvailableId] = (taskName, taskDescription, taskInterval, taskReminder)
+	tasks[firstAvailableId] = (taskName, taskDescription, taskInterval, taskReminder)
 	firstAvailableId = firstAvailableId + 1
 
 def Save( parameters ):
-	global task
+	global tasks
 	global firstAvailableId
 	fileName = 'tasks.pkl'
 	if len(parameters)==2:
 		fileName = parameters[1]
 	with open(fileName, 'wb') as output:
 		pickle.dump(firstAvailableId, output, pickle.HIGHEST_PROTOCOL)
-		pickle.dump(task, output, pickle.HIGHEST_PROTOCOL)
+		pickle.dump(tasks, output, pickle.HIGHEST_PROTOCOL)
 
 def Load( parameters ):
-	global task
+	global tasks
 	global firstAvailableId
 	fileName = 'tasks.pkl'
 	if len(parameters)==2:
 		fileName = parameters[1]
 	with open(fileName, 'rb') as input:
 		firstAvailableId = pickle.load( input)
-		task = pickle.load( input)
+		tasks = pickle.load( input)
 
 def Check( parameters ):
 	print "Check"
 
 def Delete( parameters ):
-	global task
+	global tasks
 	if len(parameters)<2:
 		print "Task to delete:",
 		taskId = int(raw_input())
 	else:
 		taskId = int(parameters[1])
-	if taskId in task.keys():
+	if taskId in tasks.keys():
 		print "Delete task {0} <y/N>?".format(taskId),
 		rep = raw_input().lower()
 		if rep == "y":
-			del task[taskId]
-			print "Task deleted"
+			del tasks[taskId]
+			print "task deleted"
 	else:
 		print "Wrong Id"
 
