@@ -17,14 +17,25 @@ def TruncText(text, length):
 def DisplayWelcomeMessage():
 	print "TaskReminder v0.1"
 
-def List( parameters ):
+def Print( parameters ):
 	global task
-	if len(task) > 0:
-		print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format('Id', 'Name', 'Description', 'Interval', 'Reminder')
-		for k,v in task.iteritems():
-			print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format( str(k), TruncText(v[0],19), TruncText(v[1],14), v[2], v[3])
+	if len(parameters)>1:
+		taskId = int(parameters[1])
+		if taskId in task.keys():
+			print "Id: {0}".format(taskId)
+			print "Name: {0}".format(task[taskId][0])
+			print "Description: {0}".format(task[taskId][1])
+			print "Interval: {0}".format(task[taskId][2])
+			print "Reminder: {0}".format(task[taskId][3])
+		else:
+			print "Wrong Id"
 	else:
-		print "No tasks"
+		if len(task) > 0:
+			print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format('Id', 'Name', 'Description', 'Interval', 'Reminder')
+			for k,v in task.iteritems():
+				print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format( str(k), TruncText(v[0],19), TruncText(v[1],14), v[2], v[3])
+		else:
+			print "No tasks"
 
 def New( parameters ):
 	global task
@@ -108,7 +119,7 @@ def Quit( parameters ):
 def Help( parameters ):
 	print "Help"
 	print "h: display this help"
-	print "p: list all tasks"
+	print "p <Id>: list all tasks"
 	print "n <Name> <Description> <Interval> <Reminder>: create a new task"
 	print "d <Id>: delete a task"
 	print "e <Id>: edit a task"
@@ -126,7 +137,7 @@ commands = {}
 commands['q']= Quit
 commands['h']= Help
 commands['help']= Help
-commands['p']= List
+commands['p']= Print
 commands['n']= New
 commands['s']= Save
 commands['d']= Delete
