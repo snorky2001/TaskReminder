@@ -5,6 +5,7 @@
 
 import sys
 from datetime import timedelta
+from datetime import datetime
 import pickle
 import shlex
 
@@ -27,13 +28,14 @@ def Print( parameters ):
 			print "Description: {0}".format(tasks[taskId][1])
 			print "Interval: {0}".format(tasks[taskId][2])
 			print "Reminder: {0}".format(tasks[taskId][3])
+			print "Last done: {0}".format(tasks[taskId][4])
 		else:
 			print "Wrong Id"
 	else:
 		if len(tasks) > 0:
-			print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format('Id', 'Name', 'Description', 'Interval', 'Reminder')
+			print '{0:5}{1:20}{2:15}{3:20}{4:20}{5:20}'.format('Id', 'Name', 'Description', 'Interval', 'Reminder', 'Last done')
 			for k,v in tasks.iteritems():
-				print '{0:5}{1:20}{2:15}{3:20}{4:20}'.format( str(k), TruncText(v[0],19), TruncText(v[1],14), v[2], v[3])
+				print '{0:5}{1:20}{2:15}{3:20}{4:20}{5:20}'.format( str(k), TruncText(v[0],19), TruncText(v[1],14), v[2], v[3], str(v[4]))
 		else:
 			print "No task"
 
@@ -65,7 +67,7 @@ def New( parameters ):
 	else:
 		taskReminder = timedelta(days=int(parameters[4]))
 
-	tasks[firstAvailableId] = (taskName, taskDescription, taskInterval, taskReminder)
+	tasks[firstAvailableId] = (taskName, taskDescription, taskInterval, taskReminder, datetime.max)
 	firstAvailableId = firstAvailableId + 1
 
 def Save( parameters ):
@@ -89,7 +91,14 @@ def Load( parameters ):
 		tasks = pickle.load( input)
 
 def Check( parameters ):
-	print "Check"
+	currentDate = datetime.now()
+	for k,v in tasks.iteritems():
+		if (v[4]<>datetime.max):
+			if ( v[4] + v[2] - v[3] < currentDate):
+				if ( v[4] + v[2] < currentDate):
+					print "{0} is late".format(k)
+				else:
+					print "{0} is due in {1}".format(k, currentDate - (v[4] + v[2]))
 
 def Delete( parameters ):
 	global tasks
@@ -111,7 +120,17 @@ def Edit( parameters ):
 	print "Edit"
 
 def Validate( parameters ):
-	print "Validate"
+	global tasks
+	if len(parameters)<2:
+		print "Task to validate:",
+		taskId = int(raw_input())
+	else:
+		taskId = int(parameters[1])
+	if taskId in tasks.keys():
+		tasks[taskId] = (tasks[taskId][0], tasks[taskId][1], tasks[taskId][2], tasks[taskId][3], datetime.now())
+		print "task validated"
+	else:
+		print "Wrong Id"
 
 def Quit( parameters ):
 	print "Bye, bye!"
