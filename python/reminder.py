@@ -35,7 +35,7 @@ def Print( parameters ):
 		if len(tasks) > 0:
 			print '{0:5}{1:20}{2:15}{3:20}{4:20}{5:20}'.format('Id', 'Name', 'Description', 'Interval', 'Reminder', 'Last done')
 			for k,v in tasks.iteritems():
-				print '{0:5}{1:20}{2:15}{3:20}{4:20}{5:20}'.format( str(k), TruncText(v[0],19), TruncText(v[1],14), v[2], v[3], str(v[4]))
+				print '{0:5}{1:20}{2:15}{3:20}{4:20}{5:20}'.format( str(k), TruncText(v[0],19), TruncText(v[1],14), str(v[2]), str(v[3]), str(v[4]))
 		else:
 			print "No task"
 
@@ -57,15 +57,15 @@ def New( parameters ):
 
 	if len(parameters)<4:
 		print "Interval (days):",
-		taskInterval = timedelta(days=int(raw_input()))
+		taskInterval = int(raw_input())
 	else:
-		taskInterval = timedelta(days=int(parameters[3]))
+		taskInterval = int(parameters[3])
 
 	if len(parameters)<5:
 		print "Reminder (days):",
-		taskReminder = timedelta(days=int(raw_input()))
+		taskReminder = int(raw_input())
 	else:
-		taskReminder = timedelta(days=int(parameters[4]))
+		taskReminder = int(parameters[4])
 
 	tasks[firstAvailableId] = (taskName, taskDescription, taskInterval, taskReminder, datetime.max)
 	firstAvailableId = firstAvailableId + 1
@@ -94,11 +94,13 @@ def Check( parameters ):
 	currentDate = datetime.now()
 	for k,v in tasks.iteritems():
 		if (v[4]<>datetime.max):
-			if ( v[4] + v[2] - v[3] < currentDate):
-				if ( v[4] + v[2] < currentDate):
+			if ( v[4] + timedelta(minutes=v[2]) - timedelta(minutes=v[3]) < currentDate):
+				print "{0} due date is {1}".format(k, v[4] + timedelta(minutes=v[2]))
+				print "{0} reminder date is {1}".format(k, v[4] + timedelta(minutes=v[2])- timedelta(minutes=v[3]))
+				if ( v[4] + timedelta(minutes=v[2]) < currentDate):
 					print "{0} is late".format(k)
 				else:
-					print "{0} is due in {1}".format(k, currentDate - (v[4] + v[2]))
+					print "{0} is due in {1}".format(k, currentDate - (v[4] + timedelta(minutes=v[2])))
 
 def Delete( parameters ):
 	global tasks
@@ -117,7 +119,27 @@ def Delete( parameters ):
 		print "Wrong Id"
 
 def Edit( parameters ):
-	print "Edit"
+	global tasks
+	global firstAvailableId
+
+	if len(parameters)<2:
+		print "Task to edit:",
+		taskId = int(raw_input())
+	else:
+		taskId = int(parameters[1])
+	if taskId in tasks.keys():
+		print "Task name [%s]:" % tasks[taskId][0],
+		taskName = raw_input() or tasks[taskId][0]
+		print "Description [%s]:" % tasks[taskId][1],
+		taskDescription = raw_input() or tasks[taskId][1]
+		print "Interval (days) [%s]:" % tasks[taskId][2],
+		taskInterval = int(raw_input() or tasks[taskId][2])
+		print "Reminder (days) [%s]:" % tasks[taskId][3],
+		taskReminder = int(raw_input() or tasks[taskId][3])
+		tasks[taskId] = (taskName, taskDescription, taskInterval, taskReminder, tasks[taskId][4])
+	else:
+		print "Wrong Id"
+
 
 def Validate( parameters ):
 	global tasks
