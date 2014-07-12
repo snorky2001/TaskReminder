@@ -197,7 +197,7 @@ commands['c']= Check
 commands['v']= Validate
 
 param = [""]
-while (param[0] != "q"):
+while (len(param)==0 or param[0] != "q"):
 	# Get user input
 	print ">>",
 	userCommand = raw_input()
@@ -206,9 +206,10 @@ while (param[0] != "q"):
 	param = shlex.split(userCommand)
 
 	# Call the matching command (case insensitive) if it exists or display an error message
-	cmd = param[0].lower()
-	if cmd in commands:
-		commands[cmd]( param )
-	else:
-		print "Command unknown"
+	if len(param)>0:
+		cmd = param[0].lower()
+		if cmd in commands:
+			commands[cmd]( param )
+		else:
+			print "Command unknown"
 
