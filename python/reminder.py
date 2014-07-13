@@ -16,6 +16,19 @@ tasks = {}
 def TruncText(text, length):
 	return (text[:length-2] + '..') if len(text)>length else text	
 
+def int_input(prompt):
+	valid = False
+	while (valid == False):
+		userInput = raw_input(prompt)
+		try:
+			val = int(userInput)
+			valid = True
+		except ValueError:
+			print("That's not an integer value!")
+
+	return val
+
+
 def DisplayWelcomeMessage():
 	print "TaskReminder v0.1"
 
@@ -57,8 +70,7 @@ def New( parameters ):
 		taskDescription = parameters[2]
 
 	if len(parameters)<4:
-		print "Interval (days):",
-		taskInterval = int(raw_input())
+		taskInterval = int_input("Interval (days):")
 	else:
 		taskInterval = int(parameters[3])
 
