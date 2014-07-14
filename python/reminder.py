@@ -265,8 +265,7 @@ def main():
 	param = [""]
 	while (len(param)==0 or param[0] != "q"):
 		# Get user input
-		print ">>",
-		userCommand = raw_input()
+		userCommand = raw_input(">> ")
 
 		# Get parameters
 		param = shlex.split(userCommand)
