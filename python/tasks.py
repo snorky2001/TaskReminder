@@ -1,9 +1,12 @@
-version = 1.0
-firstAvailableId = 0
-tasks = {}
+import sys
+import pickle
+from datetime import timedelta
+from datetime import datetime
 
-" taskList = tuple (firstAvailableId, tasks dict)
-taskList = (0, {})
+
+def CreateEmptyTaskList( taskList ):
+	# taskList = tuple (firstAvailableId, tasks dict)
+	taskList = (0, {})
 
 def AddTask( taskList, Name, Description, Interval, Reminder, ValidatedDate ):
 	firstAvailableId = taskList[0]
@@ -13,109 +16,48 @@ def AddTask( taskList, Name, Description, Interval, Reminder, ValidatedDate ):
 
 def SaveTask( taskList, filename ):
 	version = 1.0
-	with open(fileName, 'wb') as output:
+	with open(filename, 'wb') as output:
 		pickle.dump(version, output, pickle.HIGHEST_PROTOCOL)
 		pickle.dump(taskList[0], output, pickle.HIGHEST_PROTOCOL)
 		pickle.dump(taskList[1], output, pickle.HIGHEST_PROTOCOL)
 
-def Load( parameters ):
-	global tasks
-	global firstAvailableId
-	global version
-	fileName = 'tasks.pkl'
-	if len(parameters)>=2:
-		fileName = parameters[1]
-	try:
-		with open(fileName, 'rb') as input:
-			version = pickle.load( input)
-			firstAvailableId = pickle.load( input)
-			tasks = pickle.load( input)
-	except IOError:
-		print 'Unable to access file %s' % fileName
+def LoadTasks( taskList, filename ):
+	with open(filename, 'rb') as input:
+		version = pickle.load(input)
+		firstAvailableId = pickle.load(input)
+		tasks = pickle.load( input)
+		taskList = (firstAvailableId, tasks)
 
-def Check( parameters ):
-	currentDate = datetime.now()
-	for k,v in tasks.iteritems():
+def CheckTasks( taskList, checkDate, dueIn, lateOf ):
+	dueIn = []
+	lateOf = []
+	for k,v in taskList[1].iteritems():
 		if (v[4]<>datetime.max):
 			dueDate = v[4] + timedelta(days=v[2])  
 			reminderDate = dueDate - timedelta(days=v[3]) 
 			if ( reminderDate < currentDate):
-				print "{0} due date is {1}".format(k, dueDate)
-				print "{0} reminder date is {1}".format(k, reminderDate )
 				if ( dueDate < currentDate):
-					print "{0} is late".format(k)
+					lateOf.append( (k, currentDate - dueDate) )
 				else:
-					print "{0} is due in {1}".format(k, currentDate - dueDate)
+					dueIn.append( (k, currentDate - dueDate) )
 
-def Delete( parameters ):
-	global tasks
-	if len(parameters)<2:
-		taskId = int_input("Task to delete:")
+def DeleteTask( taskList, taskId):
+	if taskId in taskList[1].keys():
+		del taskList[1][taskId]
 	else:
-		try:
-			taskId = int(parameters[1])
-		except ValueError:
-			print TXT_INVALID_PARAMETER
-			return
-	if taskId in tasks.keys():
-		print "Delete task {0} <y/N>?".format(taskId),
-		rep = raw_input().lower()
-		if rep == "y":
-			del tasks[taskId]
-			print "Task deleted"
-	else:
-		print TXT_WRONG_ID
+		raise IndexError
 
-def Edit( parameters ):
-	global tasks
-	global firstAvailableId
-
-	if len(parameters)<2:
-		taskId = int_input("Task to edit:")
+def UpdateTask( taskList, Name, Description, Interval, Reminder, ValidatedDate ):
+	if taskId in taskList[1].keys():
+		taskList[1][taskId] = (Name, Description, Interval, Reminder, ValidatedDate)
 	else:
-		try:
-			taskId = int(parameters[1])
-		except ValueError:
-			print TXT_INVALID_PARAMETER
-			return
-	if taskId in tasks.keys():
-		print "Task name [%s]:" % tasks[taskId][0],
-		taskName = raw_input() or tasks[taskId][0]
-		print "Description [%s]:" % tasks[taskId][1],
-		taskDescription = raw_input() or tasks[taskId][1]
-		print "Interval (days) [%s]:" % tasks[taskId][2],
-		taskInterval = int(raw_input() or tasks[taskId][2])
-		print "Reminder (days) [%s]:" % tasks[taskId][3],
-		taskReminder = int(raw_input() or tasks[taskId][3])
-		tasks[taskId] = (taskName, taskDescription, taskInterval, taskReminder, tasks[taskId][4])
-	else:
-		print TXT_WRONG_ID
+		raise IndexError
 
 
-def Validate( parameters ):
-	global tasks
-	if len(parameters)<2:
-		taskId = int_input("Task to validate:")
+def ValidateTask( taskList, ValidateDate ):
+	if taskId in taskList[1].keys():
+		taskList[1][taskId][4] = ValidateDate
 	else:
-		try:
-			taskId = int(parameters[1])
-		except ValueError:
-			print TXT_INVALID_PARAMETER
-			return
-	if len(parameters)<3:
-		validationTime = datetime.now()
-	else:
-		try:
-			validationTime = datetime.strptime(parameters[2], "%X")
-		except ValueError:
-			print 'Invalid time provided!'
-			return
-	if taskId in tasks.keys():
-		tasks[taskId] = (tasks[taskId][0], tasks[taskId][1],
-						 tasks[taskId][2], tasks[taskId][3],
-						 validationTime)
-		print "Task validated"
-	else:
-		print TXT_WRONG_ID
+		raise IndexError
 
 
