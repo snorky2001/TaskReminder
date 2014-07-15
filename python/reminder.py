@@ -10,7 +10,7 @@ import pickle
 import shlex
 import readline
 
-import tasks
+from tasks import *
 
 TXT_WRONG_INT_INPUT = "That's not an integer value!"
 TXT_INVALID_PARAMETER = "Invalid parameter!"
@@ -45,8 +45,8 @@ def Print( taskList, parameters ):
 			print(TXT_INVALID_PARAMETER)
 			return
 
-		if CheckTask( taskList, taskId):
-			GetTask( taskList, taskId, task )
+		if CheckTaskId( taskList, taskId):
+			task = GetTask( taskList, taskId )
 			print "Id: {0}".format(taskId)
 			print "Name: {0}".format(task[0])
 			print "Description: {0}".format(task[1])
@@ -56,7 +56,7 @@ def Print( taskList, parameters ):
 		else:
 			print TXT_WRONG_ID
 	else:
-		GetTasks( taskList, tasks )
+		tasks = GetTasks( taskList )
 		if len(tasks) > 0:
 			print '{0:5}{1:20}{2:15}{3:20}{4:20}{5:20}'.format(
 					'Id',
@@ -107,14 +107,14 @@ def New( taskList, parameters ):
 			print(TXT_INVALID_PARAMETER)
 			return
 	AddTask( taskList, taskName, taskDescription, taskInterval, 
-			 taskReminder, datetime.max)
+			 taskReminder)
 
 def Save( taskList, parameters ):
 	fileName = 'tasks.pkl'
 	if len(parameters)>=2:
 		fileName = parameters[1]
 	try:
-		SaveTasks( taskList, fieName)
+		SaveTasks( taskList, fileName)
 	except IOError:
 		print 'Unable to access file %s' % fileName	
 
@@ -129,7 +129,7 @@ def Load( taskList, parameters ):
 
 def Check( taskList, parameters ):
 	currentDate = datetime.now()
-	CheckTasks( taskList, currentDate, due, late)
+	(due, late) = CheckTasks( taskList, currentDate )
 	for task in due:
 		print "{0} is due in {1}".format(task[0], task[1])
 	for task in late:
@@ -144,11 +144,11 @@ def Delete( taskList, parameters ):
 		except ValueError:
 			print TXT_INVALID_PARAMETER
 			return
-	if CheckTaskId(taskId):
+	if CheckTaskId(taskList, taskId):
 		print "Delete task {0} <y/N>?".format(taskId),
 		rep = raw_input().lower()
 		if rep == "y":
-			DeletetTask( taskList, taskId )
+			DeleteTask( taskList, taskId )
 			print "Task deleted"
 	else:
 		print TXT_WRONG_ID
@@ -172,7 +172,7 @@ def Edit( taskList, parameters ):
 		taskInterval = int(raw_input() or task[2])
 		print "Reminder (days) [%s]:" % task[3],
 		taskReminder = int(raw_input() or task[3])
-		UpdateTask( taskList, taskName, taskDescription,
+		UpdateTask( taskList, taskId, taskName, taskDescription,
 					taskInterval, taskReminder, task[4])
 	else:
 		print TXT_WRONG_ID
@@ -234,7 +234,7 @@ def main():
 	commands['c']= Check
 	commands['v']= Validate
 
-	CreateEmptyTaskList( taskList )
+	taskList = CreateEmptyTaskList( )
 
 	param = [""]
 	while (len(param)==0 or param[0] != "q"):

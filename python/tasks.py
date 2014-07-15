@@ -4,17 +4,17 @@ from datetime import timedelta
 from datetime import datetime
 
 
-def CreateEmptyTaskList( taskList ):
+def CreateEmptyTaskList( ):
 	# taskList = tuple (firstAvailableId, tasks dict)
-	taskList = (0, {})
+	return (0, {})
 
 def AddTask( taskList, Name, Description, Interval, Reminder ):
 	firstAvailableId = taskList[0]
 	tasks = taskList[1]
 	tasks[firstAvailableId] = (Name, Description, Interval, Reminder, datetime.max)
-	taskList[0] = firstAvailableId + 1
+	taskList = (firstAvailableId + 1, tasks)
 
-def SaveTask( taskList, filename ):
+def SaveTasks( taskList, filename ):
 	version = 1.0
 	with open(filename, 'wb') as output:
 		pickle.dump(version, output, pickle.HIGHEST_PROTOCOL)
@@ -24,22 +24,22 @@ def SaveTask( taskList, filename ):
 def LoadTasks( taskList, filename ):
 	with open(filename, 'rb') as input:
 		version = pickle.load(input)
-		firstAvailableId = pickle.load(input)
-		tasks = pickle.load( input)
-		taskList = (firstAvailableId, tasks)
+		taskList[0] = pickle.load(input)
+		taskList[1] = pickle.load( input)
 
-def CheckTasks( taskList, checkDate, dueIn, lateOf ):
+def CheckTasks( taskList, checkDate ):
 	dueIn = []
 	lateOf = []
 	for k,v in taskList[1].iteritems():
 		if (v[4]<>datetime.max):
 			dueDate = v[4] + timedelta(days=v[2])  
 			reminderDate = dueDate - timedelta(days=v[3]) 
-			if ( reminderDate < currentDate):
-				if ( dueDate < currentDate):
-					lateOf.append( (k, currentDate - dueDate) )
+			if ( reminderDate < checkDate):
+				if ( dueDate < checkDate):
+					lateOf.append( (k, checkDate - dueDate) )
 				else:
-					dueIn.append( (k, currentDate - dueDate) )
+					dueIn.append( (k, checkDate - dueDate) )
+	return (dueIn, lateOf)
 
 def CheckTaskId( taskList, taskId):
 	if taskId in taskList[1].keys():
@@ -53,24 +53,28 @@ def DeleteTask( taskList, taskId):
 	else:
 		raise IndexError
 
-def UpdateTask( taskList, Name, Description, Interval, Reminder, ValidatedDate ):
+def UpdateTask( taskList, taskId, Name, Description, Interval, Reminder, ValidatedDate ):
 	if taskId in taskList[1].keys():
 		taskList[1][taskId] = (Name, Description, Interval, Reminder, ValidatedDate)
 	else:
 		raise IndexError
 
-def GetTask( taskList, taskId, task):
+def GetTask( taskList, taskId):
 	if taskId in taskList[1].keys():
-		task = taskList[1][taskId]
+		return taskList[1][taskId]
 	else:
 		raise IndexError
 
-def GetTasks( taskList, tasks):
-	tasks = taskList[1]
+def GetTasks( taskList):
+	return taskList[1]
 
-def ValidateTask( taskList, ValidateDate ):
+def ValidateTask( taskList, taskId, ValidateDate ):
 	if taskId in taskList[1].keys():
-		taskList[1][taskId][4] = ValidateDate
+		taskList[1][taskId] = (taskList[1][taskId][0],
+							   taskList[1][taskId][1],
+							   taskList[1][taskId][2],
+							   taskList[1][taskId][3],
+							   ValidateDate)
 	else:
 		raise IndexError
 
