@@ -10,6 +10,8 @@ import pickle
 import shlex
 import readline
 
+import tasks
+
 version = 1.0
 firstAvailableId = 0
 tasks = {}
