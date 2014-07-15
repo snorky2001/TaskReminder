@@ -12,10 +12,6 @@ import readline
 
 import tasks
 
-version = 1.0
-firstAvailableId = 0
-tasks = {}
-
 TXT_WRONG_INT_INPUT = "That's not an integer value!"
 TXT_INVALID_PARAMETER = "Invalid parameter!"
 TXT_WRONG_ID = "Wrong Id!"
@@ -41,8 +37,7 @@ def	FormatDuration(duration):
 def DisplayWelcomeMessage():
 	print "TaskReminder v0.1"
 
-def Print( parameters ):
-	global tasks
+def Print( taskList, parameters ):
 	if len(parameters)>1:
 		try:
 			taskId = int(parameters[1])
@@ -50,16 +45,18 @@ def Print( parameters ):
 			print(TXT_INVALID_PARAMETER)
 			return
 
-		if taskId in tasks.keys():
+		if CheckTask( taskList, taskId):
+			GetTask( taskList, taskId, task )
 			print "Id: {0}".format(taskId)
-			print "Name: {0}".format(tasks[taskId][0])
-			print "Description: {0}".format(tasks[taskId][1])
-			print "Interval: {0}".format(tasks[taskId][2])
-			print "Reminder: {0}".format(tasks[taskId][3])
-			print "Last done: {0}".format(tasks[taskId][4])
+			print "Name: {0}".format(task[0])
+			print "Description: {0}".format(task[1])
+			print "Interval: {0}".format(task[2])
+			print "Reminder: {0}".format(task[3])
+			print "Last done: {0}".format(task[4])
 		else:
 			print TXT_WRONG_ID
 	else:
+		GetTasks( taskList, tasks )
 		if len(tasks) > 0:
 			print '{0:5}{1:20}{2:15}{3:20}{4:20}{5:20}'.format(
 					'Id',
@@ -79,10 +76,7 @@ def Print( parameters ):
 		else:
 			print "No task"
 
-def New( parameters ):
-	global tasks
-	global firstAvailableId
-
+def New( taskList, parameters ):
 	if len(parameters)<2:
 		print "Task name:",
 		taskName = raw_input()
@@ -112,56 +106,36 @@ def New( parameters ):
 		except ValueError:
 			print(TXT_INVALID_PARAMETER)
 			return
+	AddTask( taskList, taskName, taskDescription, taskInterval, 
+			 taskReminder, datetime.max)
 
-	tasks[firstAvailableId] = (taskName, taskDescription, taskInterval, taskReminder, datetime.max)
-	firstAvailableId = firstAvailableId + 1
-
-def Save( parameters ):
-	global tasks
-	global firstAvailableId
-	global version
+def Save( taskList, parameters ):
 	fileName = 'tasks.pkl'
 	if len(parameters)>=2:
 		fileName = parameters[1]
 	try:
-		with open(fileName, 'wb') as output:
-			pickle.dump(version, output, pickle.HIGHEST_PROTOCOL)
-			pickle.dump(firstAvailableId, output, pickle.HIGHEST_PROTOCOL)
-			pickle.dump(tasks, output, pickle.HIGHEST_PROTOCOL)
+		SaveTasks( taskList, fieName)
 	except IOError:
 		print 'Unable to access file %s' % fileName	
 
-def Load( parameters ):
-	global tasks
-	global firstAvailableId
-	global version
+def Load( taskList, parameters ):
 	fileName = 'tasks.pkl'
 	if len(parameters)>=2:
 		fileName = parameters[1]
 	try:
-		with open(fileName, 'rb') as input:
-			version = pickle.load( input)
-			firstAvailableId = pickle.load( input)
-			tasks = pickle.load( input)
+		LoadTasks( taskList, fileName)
 	except IOError:
 		print 'Unable to access file %s' % fileName
 
-def Check( parameters ):
+def Check( taskList, parameters ):
 	currentDate = datetime.now()
-	for k,v in tasks.iteritems():
-		if (v[4]<>datetime.max):
-			dueDate = v[4] + timedelta(days=v[2])  
-			reminderDate = dueDate - timedelta(days=v[3]) 
-			if ( reminderDate < currentDate):
-				print "{0} due date is {1}".format(k, dueDate)
-				print "{0} reminder date is {1}".format(k, reminderDate )
-				if ( dueDate < currentDate):
-					print "{0} is late".format(k)
-				else:
-					print "{0} is due in {1}".format(k, currentDate - dueDate)
+	CheckTasks( taskList, currentDate, due, late)
+	for task in due:
+		print "{0} is due in {1}".format(task[0], task[1])
+	for task in late:
+		print "{0} is late of {1}".format(task[0], task[1])
 
-def Delete( parameters ):
-	global tasks
+def Delete( taskList, parameters ):
 	if len(parameters)<2:
 		taskId = int_input("Task to delete:")
 	else:
@@ -170,19 +144,16 @@ def Delete( parameters ):
 		except ValueError:
 			print TXT_INVALID_PARAMETER
 			return
-	if taskId in tasks.keys():
+	if CheckTaskId(taskId):
 		print "Delete task {0} <y/N>?".format(taskId),
 		rep = raw_input().lower()
 		if rep == "y":
-			del tasks[taskId]
+			DeletetTask( taskList, taskId )
 			print "Task deleted"
 	else:
 		print TXT_WRONG_ID
 
-def Edit( parameters ):
-	global tasks
-	global firstAvailableId
-
+def Edit( taskList, parameters ):
 	if len(parameters)<2:
 		taskId = int_input("Task to edit:")
 	else:
@@ -191,22 +162,23 @@ def Edit( parameters ):
 		except ValueError:
 			print TXT_INVALID_PARAMETER
 			return
-	if taskId in tasks.keys():
-		print "Task name [%s]:" % tasks[taskId][0],
-		taskName = raw_input() or tasks[taskId][0]
-		print "Description [%s]:" % tasks[taskId][1],
-		taskDescription = raw_input() or tasks[taskId][1]
-		print "Interval (days) [%s]:" % tasks[taskId][2],
-		taskInterval = int(raw_input() or tasks[taskId][2])
-		print "Reminder (days) [%s]:" % tasks[taskId][3],
-		taskReminder = int(raw_input() or tasks[taskId][3])
-		tasks[taskId] = (taskName, taskDescription, taskInterval, taskReminder, tasks[taskId][4])
+	if CheckTaskId( taskList, taskId):
+		task = GetTask( taskList, taskId )
+		print "Task name [%s]:" % task[0],
+		taskName = raw_input() or task[0]
+		print "Description [%s]:" % task[1],
+		taskDescription = raw_input() or task[1]
+		print "Interval (days) [%s]:" % task[2],
+		taskInterval = int(raw_input() or task[2])
+		print "Reminder (days) [%s]:" % task[3],
+		taskReminder = int(raw_input() or task[3])
+		UpdateTask( taskList, taskName, taskDescription,
+					taskInterval, taskReminder, task[4])
 	else:
 		print TXT_WRONG_ID
 
 
-def Validate( parameters ):
-	global tasks
+def Validate( taskList, parameters ):
 	if len(parameters)<2:
 		taskId = int_input("Task to validate:")
 	else:
@@ -223,18 +195,16 @@ def Validate( parameters ):
 		except ValueError:
 			print 'Invalid time provided!'
 			return
-	if taskId in tasks.keys():
-		tasks[taskId] = (tasks[taskId][0], tasks[taskId][1],
-						 tasks[taskId][2], tasks[taskId][3],
-						 validationTime)
+	if CheckTaskId( taskList, taskId):
+		ValidateTask( taskList, taskId, validationTime )
 		print "Task validated"
 	else:
 		print TXT_WRONG_ID
 
-def Quit( parameters ):
+def Quit( taskList, parameters ):
 	print "Bye, bye!"
 
-def Help( parameters ):
+def Help( taskList, parameters ):
 	print "Help"
 	print "h: display this help"
 	print "p <Id>: list all tasks"
@@ -264,6 +234,8 @@ def main():
 	commands['c']= Check
 	commands['v']= Validate
 
+	CreateEmptyTaskList( taskList )
+
 	param = [""]
 	while (len(param)==0 or param[0] != "q"):
 		# Get user input
@@ -276,7 +248,7 @@ def main():
 		if len(param)>0:
 			cmd = param[0].lower()
 			if cmd in commands:
-				commands[cmd]( param )
+				commands[cmd]( taskList, param )
 			else:
 				print "Command unknown"
 

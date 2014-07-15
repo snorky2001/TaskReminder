@@ -8,7 +8,7 @@ def CreateEmptyTaskList( taskList ):
 	# taskList = tuple (firstAvailableId, tasks dict)
 	taskList = (0, {})
 
-def AddTask( taskList, Name, Description, Interval, Reminder, ValidatedDate ):
+def AddTask( taskList, Name, Description, Interval, Reminder ):
 	firstAvailableId = taskList[0]
 	tasks = taskList[1]
 	tasks[firstAvailableId] = (Name, Description, Interval, Reminder, datetime.max)
@@ -41,6 +41,12 @@ def CheckTasks( taskList, checkDate, dueIn, lateOf ):
 				else:
 					dueIn.append( (k, currentDate - dueDate) )
 
+def CheckTaskId( taskList, taskId):
+	if taskId in taskList[1].keys():
+		return True
+	else:
+		return False
+
 def DeleteTask( taskList, taskId):
 	if taskId in taskList[1].keys():
 		del taskList[1][taskId]
@@ -53,6 +59,14 @@ def UpdateTask( taskList, Name, Description, Interval, Reminder, ValidatedDate )
 	else:
 		raise IndexError
 
+def GetTask( taskList, taskId, task):
+	if taskId in taskList[1].keys():
+		task = taskList[1][taskId]
+	else:
+		raise IndexError
+
+def GetTasks( taskList, tasks):
+	tasks = taskList[1]
 
 def ValidateTask( taskList, ValidateDate ):
 	if taskId in taskList[1].keys():
