@@ -189,8 +189,9 @@ def Validate( taskList, parameters ):
 		validationTime = datetime.now()
 	else:
 		try:
-			validationTime = datetime.strptime(parameters[2], "%X")
+			validationTime = datetime.strptime(parameters[2], "%x %X")
 		except ValueError:
+			print "Format %s" % parameters[2]
 			print 'Invalid time provided!'
 			return
 	if CheckTaskId( taskList, taskId):
@@ -205,14 +206,14 @@ def Quit( taskList, parameters ):
 def Help( taskList, parameters ):
 	print "Help"
 	print "h: display this help"
-	print "p <Id>: list all tasks"
+	print "p [<Id>]: list all tasks"
 	print "n <Name> <Description> <Interval> <Reminder>: create a new task"
 	print "d <Id>: delete a task"
 	print "e <Id>: edit a task"
 	print "s <file>: save tasks into a file"
 	print "l <file>: load tasks from a file"
 	print "c: check all tasks"
-	print "v <CheckId>: mark a task as validate"
+	print "v <CheckId> [""MM/DD/YY HH:MM:SS""]: mark a task as validate"
 	print "q: quit application"
 
 def main():
