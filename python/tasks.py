@@ -5,14 +5,14 @@ from datetime import datetime
 
 
 def CreateEmptyTaskList( ):
-	# taskList = tuple (firstAvailableId, tasks dict)
-	return (0, {})
+	# taskList = list (firstAvailableId, tasks dict)
+	return [0, {}]
 
 def AddTask( taskList, Name, Description, Interval, Reminder ):
 	firstAvailableId = taskList[0]
 	tasks = taskList[1]
 	tasks[firstAvailableId] = (Name, Description, Interval, Reminder, datetime.max)
-	taskList = (firstAvailableId + 1, tasks)
+	taskList[0] = firstAvailableId + 1
 
 def SaveTasks( taskList, filename ):
 	version = 1.0
