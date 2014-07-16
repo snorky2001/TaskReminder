@@ -3,10 +3,8 @@
 #
 #
 
-import sys
 from datetime import timedelta
 from datetime import datetime
-import pickle
 import shlex
 import readline
 
