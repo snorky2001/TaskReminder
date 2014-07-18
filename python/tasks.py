@@ -8,7 +8,6 @@ import pickle
 from datetime import timedelta
 from datetime import datetime
 
-
 def CreateEmptyTaskList( ):
 	# Create a new empty taskList
 	# taskList = list (firstAvailableId, tasks dict)

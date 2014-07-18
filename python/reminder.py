@@ -9,10 +9,13 @@ import shlex
 import readline
 
 from tasks import *
+from logger import *
 
 TXT_WRONG_INT_INPUT = "That's not an integer value!"
 TXT_INVALID_PARAMETER = "Invalid parameter!"
 TXT_WRONG_ID = "Wrong Id!"
+
+LOG_FILENAME = 'validation.log'
 
 def TruncText(text, length):
 	return (text[:length-2] + '..') if len(text)>length else text	
@@ -196,6 +199,8 @@ def Validate( taskList, parameters ):
 			return
 	if CheckTaskId( taskList, taskId):
 		ValidateTask( taskList, taskId, validationTime )
+		task = GetTask( taskList, taskId)
+		PrintLogger(LOG_FILENAME, "%d;%s;%s\n" % (taskId, task[0], validationTime))
 		print "Task validated"
 	else:
 		print TXT_WRONG_ID
@@ -232,6 +237,9 @@ def main():
 	commands['l']= Load
 	commands['c']= Check
 	commands['v']= Validate
+
+	if not InitLogger(LOG_FILENAME):
+		PrintLogger(LOG_FILENAME, "Task ID; Task name; Validation date\n")
 
 	taskList = CreateEmptyTaskList( )
 
