@@ -244,6 +244,9 @@ def main():
 	taskList = CreateEmptyTaskList( )
 
 	param = [""]
+
+	Load(taskList, param)
+
 	while (len(param)==0 or param[0] != "q"):
 		# Get user input
 		userCommand = raw_input(">> ")
@@ -258,6 +261,8 @@ def main():
 				commands[cmd]( taskList, param )
 			else:
 				print "Command unknown"
+
+#	Save(taskList, param)
 
 if __name__ == "__main__":
     main()
