@@ -52,7 +52,7 @@ def CheckTasks(taskList, checkDate):
 				if ( dueDate < checkDate):
 					lateOf.append( (k, checkDate - dueDate) )
 				else:
-					dueIn.append( (k, checkDate - dueDate) )
+					dueIn.append( (k, dueDate - checkDate) )
 	return (dueIn, lateOf)
 
 def CheckTaskId(taskList, taskId):
