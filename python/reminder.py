@@ -15,7 +15,8 @@ TXT_WRONG_INT_INPUT = "That's not an integer value!"
 TXT_INVALID_PARAMETER = "Invalid parameter!"
 TXT_WRONG_ID = "Wrong Id!"
 
-LOG_FILENAME = 'validation.log'
+DEFAULT_FILENAME = 'tasks'
+LOG_FILENAME = '_validation.log'
 
 def TruncText(text, length):
 	return (text[:length-2] + '..') if len(text)>length else text	
@@ -46,8 +47,8 @@ def Print( taskList, parameters ):
 			print(TXT_INVALID_PARAMETER)
 			return
 
-		if CheckTaskId( taskList, taskId):
-			task = GetTask( taskList, taskId )
+		if CheckTaskId( taskList[0], taskId):
+			task = GetTask( taskList[0], taskId )
 			print "Id: {0}".format(taskId)
 			print "Name: {0}".format(task[0])
 			print "Description: {0}".format(task[1])
@@ -57,7 +58,7 @@ def Print( taskList, parameters ):
 		else:
 			print TXT_WRONG_ID
 	else:
-		tasks = GetTasks( taskList )
+		tasks = GetTasks( taskList[0])
 		if len(tasks) > 0:
 			print '{0:5}{1:20}{2:15}{3:20}{4:20}{5:20}'.format(
 					'Id',
@@ -107,30 +108,32 @@ def New( taskList, parameters ):
 		except ValueError:
 			print(TXT_INVALID_PARAMETER)
 			return
-	AddTask( taskList, taskName, taskDescription, taskInterval, 
+	AddTask( taskList[0], taskName, taskDescription, taskInterval, 
 			 taskReminder)
 
 def Save( taskList, parameters ):
-	fileName = 'tasks.pkl'
+	fileName = taskList[1]
 	if len(parameters)>=2:
 		fileName = parameters[1]
 	try:
-		SaveTasks( taskList, fileName)
+		taskList[1] = fileName
+		SaveTasks( taskList[0], taskList[1] + '.pkl')
 	except IOError:
-		print 'Unable to access file %s' % fileName	
+		print 'Unable to access file %s' % (taskList[1]	+ '.pkl')
 
 def Load( taskList, parameters ):
-	fileName = 'tasks.pkl'
+	fileName = taskList[1]
 	if len(parameters)>=2:
 		fileName = parameters[1]
 	try:
-		LoadTasks( taskList, fileName)
+		taskList[1] = fileName
+		LoadTasks( taskList[0], taskList[1] + '.pkl')
 	except IOError:
-		print 'Unable to access file %s' % fileName
+		print 'Unable to access file %s' % (taskList[1] + '.pkl')
 
 def Check( taskList, parameters ):
 	currentDate = datetime.now()
-	(due, late) = CheckTasks( taskList, currentDate )
+	(due, late) = CheckTasks( taskList[0], currentDate )
 	for task in due:
 		print "{0} is due in {1}".format(task[0], task[1])
 	for task in late:
@@ -145,11 +148,11 @@ def Delete( taskList, parameters ):
 		except ValueError:
 			print TXT_INVALID_PARAMETER
 			return
-	if CheckTaskId(taskList, taskId):
+	if CheckTaskId(taskList[0], taskId):
 		print "Delete task {0} <y/N>?".format(taskId),
 		rep = raw_input().lower()
 		if rep == "y":
-			DeleteTask( taskList, taskId )
+			DeleteTask( taskList[0], taskId )
 			print "Task deleted"
 	else:
 		print TXT_WRONG_ID
@@ -163,8 +166,8 @@ def Edit( taskList, parameters ):
 		except ValueError:
 			print TXT_INVALID_PARAMETER
 			return
-	if CheckTaskId( taskList, taskId):
-		task = GetTask( taskList, taskId )
+	if CheckTaskId( taskList[0], taskId):
+		task = GetTask( taskList[0], taskId )
 		print "Task name [%s]:" % task[0],
 		taskName = raw_input() or task[0]
 		print "Description [%s]:" % task[1],
@@ -173,7 +176,7 @@ def Edit( taskList, parameters ):
 		taskInterval = int(raw_input() or task[2])
 		print "Reminder (days) [%s]:" % task[3],
 		taskReminder = int(raw_input() or task[3])
-		UpdateTask( taskList, taskId, taskName, taskDescription,
+		UpdateTask( taskList[0], taskId, taskName, taskDescription,
 					taskInterval, taskReminder, task[4])
 	else:
 		print TXT_WRONG_ID
@@ -197,10 +200,14 @@ def Validate( taskList, parameters ):
 			print "Format %s" % parameters[2]
 			print 'Invalid time provided!'
 			return
-	if CheckTaskId( taskList, taskId):
-		ValidateTask( taskList, taskId, validationTime )
-		task = GetTask( taskList, taskId)
-		PrintLogger(LOG_FILENAME, "%d;%s;%s\n" % (taskId, task[0], validationTime))
+	if CheckTaskId( taskList[0], taskId):
+		ValidateTask( taskList[0], taskId, validationTime )
+		task = GetTask( taskList[0], taskId)
+
+		if not InitLogger( taskList[1] + LOG_FILENAME):
+			PrintLogger( taskList[1] + LOG_FILENAME, "Task ID; Task name; Validation date\n")
+
+		PrintLogger( taskList[1] + LOG_FILENAME, "%d;%s;%s\n" % (taskId, task[0], validationTime))
 		print "Task validated"
 	else:
 		print TXT_WRONG_ID
@@ -238,10 +245,7 @@ def main():
 	commands['c']= Check
 	commands['v']= Validate
 
-	if not InitLogger(LOG_FILENAME):
-		PrintLogger(LOG_FILENAME, "Task ID; Task name; Validation date\n")
-
-	taskList = CreateEmptyTaskList( )
+	taskList = [ CreateEmptyTaskList( ), DEFAULT_FILENAME ] 
 
 	param = [""]
 
