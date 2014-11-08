@@ -135,9 +135,11 @@ def Check( taskList, parameters ):
 	currentDate = datetime.now()
 	(due, late) = CheckTasks( taskList[0], currentDate )
 	for task in due:
-		print "{0} is due in {1}".format(task[0], task[1])
+		taskObject = GetTask( taskList[0], task[0] )
+		print "{0}:{1} is due in {2}".format(task[0], taskObject[0], task[1])
 	for task in late:
-		print "{0} is late of {1}".format(task[0], task[1])
+		taskObject = GetTask( taskList[0], task[0] )
+		print "{0}:{1} is late of {2}".format(task[0], taskObject[0], task[1])
 
 def Delete( taskList, parameters ):
 	if len(parameters)<2:
